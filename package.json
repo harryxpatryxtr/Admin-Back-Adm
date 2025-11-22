@@ -13,10 +13,16 @@
     "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
     "joi": "^18.0.2",
+    "jsonwebtoken": "^9.0.2",
     "koa": "^3.1.1",
     "koa-bodyparser": "^4.4.1",
     "koa-logger": "^4.0.0",
     "koa-router": "^14.0.0",
     "mongoose": "^9.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "globals": "^16.5.0"
   }
 }

@@ -1,20 +1,27 @@
 const Joi = require('joi');
+
 const validateRegister = async (ctx, next) => {
+
+    console.log(ctx.request.body);
+
 const schema = Joi.object({
 username: Joi.string().min(3).max(30).required(),
 email: Joi.string().email().required(),
 password: Joi.string().min(6).required(),
 firstName: Joi.string().max(50).optional(),
-lastName: Joi.string().max(50).optional()
+lastName: Joi.string().max(50).optional(),
+role: Joi.string().valid('admin', 'user').optional()
 });
+
 try {
 await schema.validateAsync(ctx.request.body);
 await next();
 } catch (error) {
 ctx.status = 400;
-ctx.body = { error: error.details[0].message };
+ctx.body = { error  };
 }
 };
+
 const validateLogin = async (ctx, next) => {
 const schema = Joi.object({
 email: Joi.string().email().required(),
@@ -25,7 +32,7 @@ await schema.validateAsync(ctx.request.body);
 await next();
 } catch (error) {
 ctx.status = 400;
-ctx.body = { error: error.details[0].message };
+ctx.body = { error };
 }
 };
 const validateUpdateProfile = async (ctx, next) => {
@@ -40,7 +47,7 @@ await schema.validateAsync(ctx.request.body);
 await next();
 } catch (error) {
 ctx.status = 400;
-ctx.body = { error: error.details[0].message };
+ctx.body = { error};
 }
 };
 module.exports = {
