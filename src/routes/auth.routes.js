@@ -1,8 +1,7 @@
 const Router = require('koa-router');
 const authController = require('../controllers/auth.controller');
 const { validateRegister, validateLogin } = require('../validators/auth.validator');
-const authMiddleware = require('../middlewares/auth.middleware');
-
+// const authMiddleware = require('../middlewares/auth.middleware'); --- IGNORE ---
 const router = new Router();
 
 router.post('/register',/*authMiddleware,*/validateRegister, authController.register);
