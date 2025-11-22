@@ -1,7 +1,7 @@
 const Koa = require('koa');
-const bodyParser = require('koa-bodyparser');
 const koaLogger = require('koa-logger');
 const routes = require('./routes');
+const bodyParser = require('koa-bodyparser');
 const errorMiddleware = require('./middlewares/error.middleware');
 
 const app = new Koa();
@@ -10,7 +10,6 @@ const app = new Koa();
 app.use(errorMiddleware);
 app.use(koaLogger());
 app.use(bodyParser());
-
 // Rutas
 app.use(routes.routes());
 app.use(routes.allowedMethods());
