@@ -5,8 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "vercel dev",
-    "deploy": "vercel --prod"
+    "dev": "nodemon server.js",
+    "lint": "eslint ."
   },
   "author": "",
   "license": "ISC",
