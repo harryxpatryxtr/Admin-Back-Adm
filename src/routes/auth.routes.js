@@ -4,7 +4,7 @@ const { validateRegister, validateLogin } = require('../validators/auth.validato
 // const authMiddleware = require('../middlewares/auth.middleware'); --- IGNORE ---
 const router = new Router();
 
-router.post('/register',/*authMiddleware,*/validateRegister, authController.register);
+router.post('/register',validateRegister, authController.register);
 router.post('/login', validateLogin, authController.login);
 router.post('/refresh', authController.refreshToken);
 

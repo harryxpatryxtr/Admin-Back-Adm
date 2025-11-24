@@ -25,14 +25,11 @@ class AuthService {
     if (!user) {
       throw new Error('Invalid credentials');
     }
-    console.log(user);
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
       throw new Error('Invalid credentials');
     }
-
-    console.log("Login attempt for email:", email);
-    const token = tokenService.generateToken(user);
+  const token = tokenService.generateToken(user);
 
     return {
       message: 'Login successful',

@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/User.model');
+const Domain = require('../models/Domain.model');
 const tokenService = require('./token.service');
 
 class DomainService {
@@ -40,24 +41,15 @@ class DomainService {
       user: { id: user._id, username: user.username, email: user.email }
     };
   }
-   async getAll({ email, password }) {
-    const user = await User.findOne({ email });
-    if (!user) {
-      throw new Error('Invalid credentials');
+   async getAll() {
+    const allDomains = await Domain.find();
+    if (!allDomains) {
+      throw new Error('Error fetching domains');
     }
-    console.log(user);
-    const isValidPassword = await bcrypt.compare(password, user.password);
-    if (!isValidPassword) {
-      throw new Error('Invalid credentials');
-    }
-
-    console.log("Login attempt for email:", email);
-    const token = tokenService.generateToken(user);
 
     return {
-      message: 'Login successful',
-      token,
-      user: { id: user._id, username: user.username, email: user.email }
+      message: 'Query successful',
+      domains: allDomains
     };
   }
 

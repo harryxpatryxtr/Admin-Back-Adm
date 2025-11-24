@@ -14,7 +14,7 @@ class TokenService {
         try {
             return jwt.verify(token, SECRET_KEY);
         } catch (err) {
-            return {msg: err.message}; // O lanza un error personalizado si prefieres
+            throw new Error(err); // O lanza un error personalizado si prefieres
         }
     }
 }
