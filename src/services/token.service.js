@@ -1,11 +1,10 @@
 const jwt = require('jsonwebtoken');
 
-const SECRET_KEY = process.env.JWT_SECRET || 'tu_clave_secreta';
-const EXPIRES_IN = '1h'; // Puedes ajustar el tiempo de expiración
+const SECRET_KEY = process.env.JWT_SECRET || 'scrt';
+const EXPIRES_IN = '1h'; 
 
 class TokenService {
     generateToken(user) {
-        // Puedes incluir más datos del usuario si lo necesitas
         const payload = { userId: user.id, email: user.email, name: user.name };
         return jwt.sign(payload, SECRET_KEY, { expiresIn: EXPIRES_IN });
     }

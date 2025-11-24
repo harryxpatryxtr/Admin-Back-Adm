@@ -3,7 +3,7 @@ const domainService  = require('../services/domain.service');
 class DomainController {
   async register(ctx) {
     try {
-      const result = await domainService.register(ctx.request.body);
+      const result = await domainService.register(ctx.request.body, ctx.state.user);
       ctx.status = 201;
       ctx.body = result;
     } catch (error) {
@@ -13,7 +13,8 @@ class DomainController {
 
   async update(ctx) {
     try {
-      const result = await domainService.login(ctx.request.body);
+      const result = await domainService.update(ctx.request.body,ctx.state.user );
+      console.log("Update Result:", result);
       ctx.body = result;
     } catch (error) {
       ctx.throw(401, error.message);
@@ -31,7 +32,7 @@ class DomainController {
 
   async getById(ctx) {
     try {
-      const result = await domainService.getById(ctx.request.body);
+      const result = await domainService.getById(ctx.request.params.id  );
       ctx.body = result;
     } catch (error) {
       ctx.throw(401, error.message);

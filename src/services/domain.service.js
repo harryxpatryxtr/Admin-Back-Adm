@@ -1,76 +1,67 @@
-const bcrypt = require('bcrypt');
-const User = require('../models/User.model');
-const Domain = require('../models/Domain.model');
-const tokenService = require('./token.service');
+const Domain = require("../models/Domain.model");
 
 class DomainService {
-  async register({ username, email, password, firstName, lastName, role }) {
-    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
-    if (existingUser) {
-      throw new Error('User already exists');
+  async register({ id, name, description }, { userId }) {
+    const existingDomain = await Domain.findOne({ id });
+    if (existingDomain) {
+      throw new Error("Domain already exists");
     }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ username, email, password: hashedPassword,firstName,lastName,role });
-    const token = tokenService.generateToken({id: user._id, username: user.username, email, firstName, lastName, role});
-
+    const domain = await Domain.create({
+      id,
+      name,
+      description,
+      userCreated: userId,
+    });
     return {
-      message: 'User registered successfully',
-      token,
-      user: { id: user._id, username, email, firstName, lastName, role }
+      message: "Domain registered successfully",
+      data: {
+        domain: { idDb: domain._id, id, name, description },
+      },
     };
   }
 
-  async update({ email, password }) {
-    const user = await User.findOne({ email });
-    if (!user) {
-      throw new Error('Invalid credentials');
+  async update({ id, name, description }, { userId }) {
+    const domain = await Domain.findOneAndUpdate(
+      { id },
+      { name, description, userUpdate: userId }
+    );
+    if (!domain) {
+      throw new Error("Domain not found");
     }
-    console.log(user);
-    const isValidPassword = await bcrypt.compare(password, user.password);
-    if (!isValidPassword) {
-      throw new Error('Invalid credentials');
-    }
-
-    console.log("Login attempt for email:", email);
-    const token = tokenService.generateToken(user);
-
     return {
-      message: 'Login successful',
-      token,
-      user: { id: user._id, username: user.username, email: user.email }
+      message: "Domain updated successfully",
+      data: {
+        domain: { idDb: domain._id, id, name, description },
+      },
     };
   }
-   async getAll() {
-    const allDomains = await Domain.find();
+  async getAll() {
+    const allDomains = await Domain.find({ state: 1 });
     if (!allDomains) {
-      throw new Error('Error fetching domains');
+      throw new Error("Error fetching domains");
     }
 
     return {
-      message: 'Query successful',
-      domains: allDomains
+      message: "Query successful",
+      data: { domains: allDomains },
     };
   }
 
-  async getById({ email, password }) {
-    const user = await User.findOne({ email });
-    if (!user) {
-      throw new Error('Invalid credentials');
+  async getById(id) {
+    const domain = await Domain.findOne({ id, state: 1 });
+    if (!domain) {
+      throw new Error("Domain not found");
     }
-    console.log(user);
-    const isValidPassword = await bcrypt.compare(password, user.password);
-    if (!isValidPassword) {
-      throw new Error('Invalid credentials');
-    }
-
-    console.log("Login attempt for email:", email);
-    const token = tokenService.generateToken(user);
-
     return {
-      message: 'Login successful',
-      token,
-      user: { id: user._id, username: user.username, email: user.email }
+      message: "Query successful",
+      data: {
+        domain: {
+          _id: domain._id,
+          id: domain.id,
+          name: domain.name,
+          description: domain.description,
+        },
+      },
     };
   }
 }

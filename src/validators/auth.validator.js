@@ -1,7 +1,6 @@
 const Joi = require("joi");
 
 const validateRegister = async (ctx, next) => {
-  console.log(ctx.request.body);
 
   const schema = Joi.object({
     username: Joi.string().min(3).max(30).required(),

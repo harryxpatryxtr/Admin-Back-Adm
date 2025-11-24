@@ -1,10 +1,20 @@
 const mongoose = require("mongoose");
 const domainSchema = new mongoose.Schema(
   {
-    identityId: String,
+    id: {
+        type: String,
+        required: true,
+        unique: true,
+    },
     name: String,
     description: String,
-    state: Number,
+    state: {
+        type: Number,
+        default: 1, // 1: Active, 0: Inactive
+    },
+    lastLogin: {
+        type: Date,
+    },
     userCreated: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
@@ -23,8 +33,8 @@ const domainSchema = new mongoose.Schema(
 // Método para ocultar datos sensibles
 domainSchema.methods.toPublicJSON = function () {
   return {
-    id: this._id,
-    identityId: this.identityId,
+    idDb: this._id,
+    id: this.id,
     name: this.name,
     description: this.description,
     state: this.state,

@@ -38,7 +38,7 @@ const validateGetById = async (ctx, next) => {
     id: Joi.string().required(),
     });
   try {
-    await schema.validateAsync(ctx.request.body);
+    await schema.validateAsync(ctx.request.params );
     await next();
   } catch (error) {
     ctx.status = 400;
