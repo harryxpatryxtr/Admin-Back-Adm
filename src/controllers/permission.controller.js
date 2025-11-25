@@ -1,4 +1,4 @@
-const permissionService  = require('../services/domain.service');
+const permissionService  = require('../services/permission.service');
 
 class PermissionController {
   async register(ctx) {
