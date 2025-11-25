@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const permissionSchema = new mongoose.Schema(
+const positionSchema = new mongoose.Schema(
   {
     id: {
         type: String,
@@ -31,7 +31,7 @@ const permissionSchema = new mongoose.Schema(
   }
 );
 // Método para ocultar datos sensibles
-permissionSchema.methods.toPublicJSON = function () {
+positionSchema.methods.toPublicJSON = function () {
   return {
     idDb: this._id,
     id: this.id,
@@ -43,4 +43,4 @@ permissionSchema.methods.toPublicJSON = function () {
   };
 };
 
-module.exports = mongoose.model("Permission", permissionSchema);
+module.exports = mongoose.model("Position", positionSchema);
