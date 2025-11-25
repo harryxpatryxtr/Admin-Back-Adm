@@ -6,7 +6,7 @@ const authMiddleware = require('../middlewares/auth.middleware');
 const router = new Router();
 
 router.post('/register',authMiddleware,validateRegister, userTypeController.register);
-router.post('/update', authMiddleware ,validateUpdate, userTypeController.update);
+router.put('/update', authMiddleware ,validateUpdate, userTypeController.update);
 router.get('/getAll', authMiddleware,  userTypeController.getAll);
 router.get('/getById/:id', authMiddleware, validateGetById, userTypeController.getById);
 

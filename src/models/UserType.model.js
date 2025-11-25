@@ -30,7 +30,6 @@ const domainSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
-// Método para ocultar datos sensibles
 domainSchema.methods.toPublicJSON = function () {
   return {
     idDb: this._id,

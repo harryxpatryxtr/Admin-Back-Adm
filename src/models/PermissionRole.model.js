@@ -1,13 +1,19 @@
 const mongoose = require("mongoose");
-const permissionSchema = new mongoose.Schema(
+const PermissionRole = new mongoose.Schema(
   {
     id: {
         type: String,
         required: true,
         unique: true,
     },
-    name: String,
-    description: String,
+    role: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Role",
+    },
+    permission: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Permission",
+    },
     state: {
         type: Number,
         default: 1, // 1: Active, 0: Inactive
@@ -25,21 +31,22 @@ const permissionSchema = new mongoose.Schema(
     }
   },
   {
-    timestamps: true, // Agrega createdAt y updatedAt automáticamente
+    timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
 );
-permissionSchema.methods.toPublicJSON = function () {
+
+PermissionRole.methods.toPublicJSON = function () {
   return {
     idDb: this._id,
     id: this.id,
-    name: this.name,
-    description: this.description,
+    role: this.role,
+    permission: this.permission,
     state: this.state,
     lastLogin: this.lastLogin,
     createdAt: this.createdAt
   };
 };
 
-module.exports = mongoose.model("Permission", permissionSchema);
+module.exports = mongoose.model("PermissionRole", PermissionRole);

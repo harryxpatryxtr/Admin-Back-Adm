@@ -67,7 +67,6 @@ const userSchema = new mongoose.Schema(
 userSchema.virtual("fullName").get(function () {
   return `${this.firstName || ""} ${this.lastName || ""}`.trim();
 });
-// Método para ocultar datos sensibles
 userSchema.methods.toPublicJSON = function () {
   return {
     id: this._id,

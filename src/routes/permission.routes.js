@@ -6,7 +6,7 @@ const authMiddleware = require('../middlewares/auth.middleware');
 const router = new Router();
 
 router.post('/register',authMiddleware,validateRegister, permissionController.register);
-router.post('/update', authMiddleware ,validateUpdate, permissionController.update);
+router.put('/update', authMiddleware ,validateUpdate, permissionController.update);
 router.get('/getAll', authMiddleware,  permissionController.getAll);
 router.get('/getById/:id', authMiddleware, validateGetById, permissionController.getById);
 
