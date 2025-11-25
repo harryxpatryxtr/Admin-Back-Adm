@@ -18,9 +18,6 @@ const PermissionRole = new mongoose.Schema(
         type: Number,
         default: 1, // 1: Active, 0: Inactive
     },
-    lastLogin: {
-        type: Date,
-    },
     userCreated: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
@@ -44,7 +41,6 @@ PermissionRole.methods.toPublicJSON = function () {
     role: this.role,
     permission: this.permission,
     state: this.state,
-    lastLogin: this.lastLogin,
     createdAt: this.createdAt
   };
 };

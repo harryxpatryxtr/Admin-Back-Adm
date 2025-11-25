@@ -12,9 +12,7 @@ const permissionSchema = new mongoose.Schema(
         type: Number,
         default: 1, // 1: Active, 0: Inactive
     },
-    lastLogin: {
-        type: Date,
-    },
+
     userCreated: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
@@ -37,7 +35,6 @@ permissionSchema.methods.toPublicJSON = function () {
     name: this.name,
     description: this.description,
     state: this.state,
-    lastLogin: this.lastLogin,
     createdAt: this.createdAt
   };
 };

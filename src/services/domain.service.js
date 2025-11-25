@@ -60,7 +60,7 @@ class DomainService {
     ).populate(
       "userUpdate",
       "name email"
-    );;
+    );
     if (!domain) {
       throw new Error("Domain not found");
     }

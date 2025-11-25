@@ -12,9 +12,6 @@ const documentTypeSchema = new mongoose.Schema(
         type: Number,
         default: 1, // 1: Active, 0: Inactive
     },
-    lastLogin: {
-        type: Date,
-    },
     userCreated: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
