@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@koa/cors": "^5.0.0",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
     "joi": "^18.0.2",
