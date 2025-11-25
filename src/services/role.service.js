@@ -37,7 +37,13 @@ class RoleService {
     };
   }
   async getAll() {
-    const allRoles = await Role.find({ state: 1 });
+    const allRoles = await Role.find({ state: 1 }).populate(
+      "userCreated",
+      "name email"
+    ).populate(
+      "userUpdate",
+      "name email"
+    );
     if (!allRoles) {
       throw new Error("Error fetching roles");
     }
@@ -49,7 +55,13 @@ class RoleService {
   }
 
   async getById(id) {
-    const role = await Role.findOne({ id, state: 1 });
+    const role = await Role.findOne({ id, state: 1 }).populate(
+      "userCreated",
+      "name email"
+    ).populate(
+      "userUpdate",
+      "name email"
+    );
     if (!role) {
       throw new Error("Permission not found");
     }

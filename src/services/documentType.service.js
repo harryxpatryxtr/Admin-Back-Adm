@@ -36,7 +36,13 @@ class DocumentTypeService {
     };
   }
   async getAll() {
-    const allDocumentTypes = await DocumentType.find({ state: 1 });
+    const allDocumentTypes = await DocumentType.find({ state: 1 }).populate(
+      "userCreated",
+      "name email"
+    ).populate(
+      "userUpdate",
+      "name email"
+    );
     if (!allDocumentTypes) {
       throw new Error("Error fetching document types");
     }
@@ -48,7 +54,13 @@ class DocumentTypeService {
   }
 
   async getById(id) {
-    const documentType = await DocumentType.findOne({ id, state: 1 });
+    const documentType = await DocumentType.findOne({ id, state: 1 }).populate(
+      "userCreated",
+      "name email"
+    ).populate(
+      "userUpdate",
+      "name email"
+    );
     if (!documentType) {
       throw new Error("DocumentType not found");
     }

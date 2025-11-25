@@ -36,7 +36,13 @@ class DomainService {
     };
   }
   async getAll() {
-    const allDomains = await Domain.find({ state: 1 });
+    const allDomains = await Domain.find({ state: 1 }).populate(
+      "userCreated",
+      "name email"
+    ).populate(
+      "userUpdate",
+      "name email"
+    );
     if (!allDomains) {
       throw new Error("Error fetching domains");
     }
@@ -48,7 +54,13 @@ class DomainService {
   }
 
   async getById(id) {
-    const domain = await Domain.findOne({ id, state: 1 });
+    const domain = await Domain.findOne({ id, state: 1 }).populate(
+      "userCreated",
+      "name email"
+    ).populate(
+      "userUpdate",
+      "name email"
+    );;
     if (!domain) {
       throw new Error("Domain not found");
     }

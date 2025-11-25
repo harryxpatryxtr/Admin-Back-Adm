@@ -36,7 +36,13 @@ class PositionService {
     };
   }
   async getAll() {
-    const allPositions = await Position.find({ state: 1 });
+    const allPositions = await Position.find({ state: 1 }).populate(
+      "userCreated",
+      "name email"
+    ).populate(
+      "userUpdate",
+      "name email"
+    );;
     if (!allPositions) {
       throw new Error("Error fetching positions");
     }
@@ -48,7 +54,13 @@ class PositionService {
   }
 
   async getById(id) {
-    const position = await Position.findOne({ id, state: 1 });
+    const position = await Position.findOne({ id, state: 1 }).populate(
+      "userCreated",
+      "name email"
+    ).populate(
+      "userUpdate",
+      "name email"
+    );
     if (!position) {
       throw new Error("Position not found");
     }

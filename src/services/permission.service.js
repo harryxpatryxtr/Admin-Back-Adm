@@ -36,7 +36,13 @@ class PermissionService {
     };
   }
   async getAll() {
-    const allPermissions = await Permission.find({ state: 1 });
+    const allPermissions = await Permission.find({ state: 1 }).populate(
+      "userCreated",
+      "name email"
+    ).populate(
+      "userUpdate",
+      "name email"
+    );
     if (!allPermissions) {
       throw new Error("Error fetching permissions");
     }
@@ -48,7 +54,13 @@ class PermissionService {
   }
 
   async getById(id) {
-    const permission = await Permission.findOne({ id, state: 1 });
+    const permission = await Permission.findOne({ id, state: 1 }).populate(
+      "userCreated",
+      "name email"
+    ).populate(
+      "userUpdate",
+      "name email"
+    );
     if (!permission) {
       throw new Error("Permission not found");
     }

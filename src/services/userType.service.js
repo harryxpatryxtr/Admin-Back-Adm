@@ -36,7 +36,13 @@ class UserTypeService {
     };
   }
   async getAll() {
-    const allUserTypes = await UserType.find({ state: 1 });
+    const allUserTypes = await UserType.find({ state: 1 }).populate(
+      "userCreated",
+      "name email"
+    ).populate(
+      "userUpdate",
+      "name email"
+    );
     console.log("All User Types:", allUserTypes);
     if (!allUserTypes) {
       throw new Error("Error fetching user types");
@@ -49,7 +55,13 @@ class UserTypeService {
   }
 
   async getById(id) {
-    const userType = await UserType.findOne({ id, state: 1 });
+    const userType = await UserType.findOne({ id, state: 1 }).populate(
+      "userCreated",
+      "name email"
+    ).populate(
+      "userUpdate",
+      "name email"
+    );
     if (!userType) {
       throw new Error("User Type not found");
     }
