@@ -10,4 +10,5 @@ router.put('/update', authMiddleware ,validateUpdate, positionController.update)
 router.get('/getAll', authMiddleware,  positionController.getAll);
 router.get('/getById/:id', authMiddleware, validateGetById, positionController.getById);
 
+
 module.exports = router;

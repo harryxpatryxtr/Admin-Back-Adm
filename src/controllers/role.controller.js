@@ -65,6 +65,17 @@ class RoleController {
       ctx.throw(401, error.message);
     }
   }
+  async getPermissionsByRole(ctx) {
+    try {
+      const result = await roleService.getPermissionsByRole(
+        ctx.request.params.roleId
+      );
+      ctx.body = result;
+    } catch (error) {
+      ctx.throw(401, error.message);
+    }
+  }
+  
 }
 
 module.exports = new RoleController();

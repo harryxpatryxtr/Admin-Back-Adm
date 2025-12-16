@@ -34,7 +34,6 @@ documentTypeSchema.methods.toPublicJSON = function () {
     name: this.name,
     description: this.description,
     state: this.state,
-    lastLogin: this.lastLogin,
     createdAt: this.createdAt
   };
 };

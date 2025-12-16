@@ -11,6 +11,6 @@ router.get('/getAll', authMiddleware,  roleController.getAll);
 router.get('/getById/:id', authMiddleware, validateGetById, roleController.getById);
 router.post('/setPermission', authMiddleware,  roleController.setPermission);
 router.delete('/setPermission/:id', authMiddleware,  roleController.deletePermission);
-
+router.get('/getPermissions/:roleId', authMiddleware,  roleController.getPermissionsByRole);
 
 module.exports = router;    

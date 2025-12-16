@@ -48,10 +48,6 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    lastLogin: {
-      type: Date,
-      default: null,
-    },
     refreshToken: {
       type: String,
       select: false,
@@ -79,7 +75,6 @@ userSchema.methods.toPublicJSON = function () {
     role: this.role,
     isActive: this.isActive,
     isEmailVerified: this.isEmailVerified,
-    lastLogin: this.lastLogin,
     createdAt: this.createdAt,
   };
 };

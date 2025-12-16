@@ -125,6 +125,20 @@ class RoleService {
       message: "Permission removed from role successfully",
     };  
   }
+
+  async getPermissionsByRole(roleId) {
+    const permissions = await PermissionRole.find({ role: roleId, state: 1 })
+      .populate("permission")
+      .populate("userCreated", "name email")
+      .populate("userUpdate", "name email");
+    if (!permissions) {
+      throw new Error("Error fetching permissions for the role");
+    }
+    return {
+      message: "Query successful",
+      data: { permissions },
+    };
+  }
 }
 
 module.exports = new RoleService();
