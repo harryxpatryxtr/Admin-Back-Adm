@@ -6,6 +6,7 @@ const documentTypeRoutes = require('./documentType.routes');
 const positionRoutes = require('./position.routes');
 const permissionRoutes = require('./permission.routes');
 const roleRoutes = require('./role.routes');
+const userRoutes = require('./user.routes');
 
 const router = new Router();
 
@@ -16,5 +17,6 @@ router.use('/api/documentType', documentTypeRoutes.routes());
 router.use('/api/position', positionRoutes.routes());
 router.use('/api/permission', permissionRoutes.routes());
 router.use('/api/role', roleRoutes.routes());
+router.use('/api/user', userRoutes.routes());
 
 module.exports = router;

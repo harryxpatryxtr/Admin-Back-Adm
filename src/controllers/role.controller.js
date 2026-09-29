@@ -20,7 +20,7 @@ class RoleController {
       console.log("Update Result:", result);
       ctx.body = result;
     } catch (error) {
-      ctx.throw(401, error.message);
+      ctx.throw(400, error.message);
     }
   }
 
@@ -29,7 +29,7 @@ class RoleController {
       const result = await roleService.getAll(ctx.request.body);
       ctx.body = result;
     } catch (error) {
-      ctx.throw(401, error.message);
+      ctx.throw(400, error.message);
     }
   }
 
@@ -38,7 +38,7 @@ class RoleController {
       const result = await roleService.getById(ctx.request.params.id);
       ctx.body = result;
     } catch (error) {
-      ctx.throw(401, error.message);
+      ctx.throw(400, error.message);
     }
   }
   async setPermission(ctx) {
@@ -51,7 +51,7 @@ class RoleController {
       ctx.body = result;
     } catch (error) {
        console.log("Controller - setPermission called with:", error);
-      ctx.throw(401, error.message);
+      ctx.throw(400, error.message);
     }
   }
   async deletePermission(ctx) {
@@ -62,7 +62,7 @@ class RoleController {
       );
       ctx.body = result;
     } catch (error) {
-      ctx.throw(401, error.message);
+      ctx.throw(400, error.message);
     }
   }
   async getPermissionsByRole(ctx) {
@@ -72,7 +72,7 @@ class RoleController {
       );
       ctx.body = result;
     } catch (error) {
-      ctx.throw(401, error.message);
+      ctx.throw(400, error.message);
     }
   }
   

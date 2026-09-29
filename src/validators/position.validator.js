@@ -9,11 +9,12 @@ const validateRegister = async (ctx, next) => {
 
   try {
     await schema.validateAsync(ctx.request.body);
-    await next();
   } catch (error) {
     ctx.status = 400;
-    ctx.body = { error };
+    ctx.body = { success: false, error: error.message };
+    return;
   }
+  await next();
 };
 
 const validateUpdate = async (ctx, next) => {
@@ -24,11 +25,12 @@ const validateUpdate = async (ctx, next) => {
     });
   try {
     await schema.validateAsync(ctx.request.body);
-    await next();
   } catch (error) {
     ctx.status = 400;
-    ctx.body = { error };
+    ctx.body = { success: false, error: error.message };
+    return;
   }
+  await next();
 };
 
 
@@ -39,11 +41,12 @@ const validateGetById = async (ctx, next) => {
     });
   try {
     await schema.validateAsync(ctx.request.params );
-    await next();
   } catch (error) {
     ctx.status = 400;
-    ctx.body = { error };
+    ctx.body = { success: false, error: error.message };
+    return;
   }
+  await next();
 };
 module.exports = {
     validateRegister,

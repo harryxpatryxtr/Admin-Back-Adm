@@ -20,10 +20,9 @@ class AuthController {
     }
   }
 
-  async refreshToken(ctx) {
+  async me(ctx) {
     try {
-      const result = await authService.refreshToken(ctx.request.body);
-      ctx.body = result;
+      ctx.body = await authService.me(ctx.state.user.userId);
     } catch (error) {
       ctx.throw(401, error.message);
     }

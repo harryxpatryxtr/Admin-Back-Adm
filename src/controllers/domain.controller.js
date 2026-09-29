@@ -17,7 +17,7 @@ class DomainController {
       console.log("Update Result:", result);
       ctx.body = result;
     } catch (error) {
-      ctx.throw(401, error.message);
+      ctx.throw(400, error.message);
     }
   }
 
@@ -26,7 +26,7 @@ class DomainController {
       const result = await domainService.getAll(ctx.request.body);
       ctx.body = result;
     } catch (error) {
-      ctx.throw(401, error.message);
+      ctx.throw(400, error.message);
     }
   }
 
@@ -35,7 +35,7 @@ class DomainController {
       const result = await domainService.getById(ctx.request.params.id  );
       ctx.body = result;
     } catch (error) {
-      ctx.throw(401, error.message);
+      ctx.throw(400, error.message);
     }
   }
 

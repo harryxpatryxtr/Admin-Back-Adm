@@ -21,8 +21,8 @@ class AuthService {
   }
 
   async login({ email, password }) {
-    const user = await User.findOne({ email });
-    if (!user) {
+    const user = await User.findOne({ email }).populate('role', 'id name');
+    if (!user || !user.isActive) {
       throw new Error('Invalid credentials');
     }
     const isValidPassword = await bcrypt.compare(password, user.password);
@@ -34,7 +34,26 @@ class AuthService {
     return {
       message: 'Login successful',
       token,
-      user: { id: user._id, username: user.username, email: user.email }
+      user: this.toSessionUser(user)
+    };
+  }
+
+  async me(userId) {
+    const user = await User.findById(userId).populate('role', 'id name');
+    if (!user || !user.isActive) {
+      throw new Error('User not found');
+    }
+    return this.toSessionUser(user);
+  }
+
+  toSessionUser(user) {
+    return {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      name: user.fullName || user.username,
+      role: user.role ? user.role.name : null,
+      roleId: user.role ? user.role._id : null,
     };
   }
 }

@@ -17,7 +17,7 @@ class PositionController {
       console.log("Update Result:", result);
       ctx.body = result;
     } catch (error) {
-      ctx.throw(401, error.message);
+      ctx.throw(400, error.message);
     }
   }
 
@@ -26,7 +26,7 @@ class PositionController {
       const result = await positionService.getAll(ctx.request.body);
       ctx.body = result;
     } catch (error) {
-      ctx.throw(401, error.message);
+      ctx.throw(400, error.message);
     }
   }
 
@@ -35,7 +35,7 @@ class PositionController {
       const result = await positionService.getById(ctx.request.params.id  );
       ctx.body = result;
     } catch (error) {
-      ctx.throw(401, error.message);
+      ctx.throw(400, error.message);
     }
   }
 

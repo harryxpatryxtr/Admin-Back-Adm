@@ -79,16 +79,15 @@ class RoleService {
   }
 
   async setPermission({ id, roleId, permissionId }, { userId }) {
+    // Una asignación por par rol-permiso: si existe inactiva se reactiva
     const permissionRole = await PermissionRole.findOne({
-      id,
       role: roleId,
       permission: permissionId,
     });
-    console.log("Existing permissionRole:", permissionRole);
     if (permissionRole) {
       if (permissionRole.state === 0) {
-        await PermissionRole.findOneAndUpdate(
-          { roleId, permissionId },
+        await PermissionRole.findByIdAndUpdate(
+          permissionRole._id,
           { state: 1, userUpdate: userId }
         );
         return {
