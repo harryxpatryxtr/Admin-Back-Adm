@@ -51,4 +51,7 @@ module.exports = {
   validateRefresh: validate(refreshSchema),
   validateUserId: validate(userIdSchema, 'params'),
   validateAssignRole: validate(assignRoleSchema),
+  registerSchema,
+  passwordSchema,
+  assignRoleSchema,
 };

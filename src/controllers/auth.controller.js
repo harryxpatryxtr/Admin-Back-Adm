@@ -14,6 +14,10 @@ class AuthController {
     ctx.body = await authService.refreshToken(ctx.request.body);
   }
 
+  async me(ctx) {
+    ctx.body = await authService.me(ctx.state.account);
+  }
+
   async logout(ctx) {
     ctx.body = await authService.logout(ctx.state.user.userId);
   }

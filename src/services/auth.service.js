@@ -4,6 +4,7 @@ const User = require('../models/User.model');
 const tokenService = require('./token.service');
 const { getConfig } = require('../config/environment');
 const HttpError = require('../utils/http-error');
+const { getAccess } = require('./access.service');
 
 const PASSWORD_ROUNDS = 12;
 const dummyPasswordHash = bcrypt.hash(randomUUID(), PASSWORD_ROUNDS);
@@ -110,6 +111,14 @@ class AuthService {
       tokenType: 'Bearer',
       user: safeUser(user),
     };
+  }
+
+  async me(account) {
+    const user = await User.findById(account._id).select('+username +lastName').exec();
+    if (!user) {
+      throw new HttpError(401, 'Invalid or expired token', { code: 'INVALID_TOKEN' });
+    }
+    return { user: safeUser(user), ...(await getAccess(account)) };
   }
 
   async logout(userId) {

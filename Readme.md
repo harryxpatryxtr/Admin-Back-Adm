@@ -39,6 +39,7 @@ El comando crea el rol `super-admin`, las claves de permiso documentadas abajo y
 - Enviar el token de acceso como `Authorization: Bearer <accessToken>`.
 - `POST /api/auth/refresh` recibe `{ "refreshToken": "..." }`, rota el token y devuelve un nuevo par. Un refresh token anterior no se puede reutilizar.
 - `POST /api/auth/logout` invalida el refresh token vigente. Los access tokens ya emitidos expiran por sí solos.
+- `GET /api/auth/me` devuelve el usuario autenticado con sus roles activos y sus claves de permiso, para que el cliente adapte la interfaz.
 - Las cuentas con `state: 0` o `isActive: false` no pueden iniciar sesión ni usar un token ya emitido.
 - El registro público permanece desactivado salvo que se configure `PUBLIC_REGISTRATION_ENABLED=true`.
 - El rate limiter es local al proceso; en despliegues con varias réplicas, complementarlo con límites equivalentes en el gateway o un almacén compartido. Configurar `TRUST_PROXY=true` solo si el tráfico llega exclusivamente a través de un proxy de confianza.
@@ -57,7 +58,7 @@ user:create                   user:update                   user:read
 user:assign-role
 ```
 
-Las asociaciones usuario-rol se almacenan en `UserRole`; rol-permiso, en `PermissionRole`. Los endpoints de usuarios están disponibles bajo `/api/user` y la consulta de usuarios está paginada (`page`, `limit`, máximo 100).
+Las asociaciones usuario-rol se almacenan en `UserRole`; rol-permiso, en `PermissionRole`. Los endpoints de usuarios están disponibles bajo `/api/user` y la consulta de usuarios está paginada (`page`, `limit`, máximo 100). Los usuarios se devuelven con `roles` y con los catálogos (`idTypeUser`, `idTypeDocument`, `idTypeCargo`) poblados. Los roles se asignan con `POST /api/user/assignRole` y se quitan con `POST /api/user/unassignRole` (`{ id, roleId }`). `PUT /api/user/update` acepta `state` y `password`; ambos cambios revocan el refresh token del usuario, y nadie puede desactivar su propia cuenta.
 
 ## Calidad
 

@@ -21,6 +21,10 @@ class UserController {
   async assignRole(ctx) {
     ctx.body = await userService.assignRole(ctx.request.body, ctx.state.user);
   }
+
+  async unassignRole(ctx) {
+    ctx.body = await userService.unassignRole(ctx.request.body, ctx.state.user);
+  }
 }
 
 module.exports = new UserController();

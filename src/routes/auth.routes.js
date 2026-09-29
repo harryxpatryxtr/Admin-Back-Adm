@@ -12,6 +12,7 @@ const registrationLimiter = createRateLimiter({ windowMs: 60 * 60 * 1000, max: 5
 router.post('/register', registrationLimiter, validateRegister, authController.register);
 router.post('/login', loginLimiter, validateLogin, authController.login);
 router.post('/refresh', refreshLimiter, validateRefresh, authController.refreshToken);
+router.get('/me', authMiddleware, authController.me);
 router.post('/logout', authMiddleware, authController.logout);
 
 module.exports = router;
