@@ -10,12 +10,12 @@ class AuthController {
     ctx.body = await authService.login(ctx.request.body);
   }
 
-  async me(ctx) {
-    try {
-      ctx.body = await authService.me(ctx.state.user.userId);
-    } catch (error) {
-      ctx.throw(401, error.message);
-    }
+  async refreshToken(ctx) {
+    ctx.body = await authService.refreshToken(ctx.request.body);
+  }
+
+  async logout(ctx) {
+    ctx.body = await authService.logout(ctx.state.user.userId);
   }
 }
 
