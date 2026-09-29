@@ -1,14 +1,9 @@
-const domainService  = require('../services/domain.service');
+const domainService = require('../services/domain.service');
 
 class DomainController {
   async register(ctx) {
-    try {
-      const result = await domainService.register(ctx.request.body, ctx.state.user);
-      ctx.status = 201;
-      ctx.body = result;
-    } catch (error) {
-      ctx.throw(400, error.message);
-    }
+    ctx.status = 201;
+    ctx.body = await domainService.register(ctx.request.body, ctx.state.user);
   }
 
   async update(ctx) {
@@ -38,7 +33,6 @@ class DomainController {
       ctx.throw(400, error.message);
     }
   }
-
 }
 
 module.exports = new DomainController();

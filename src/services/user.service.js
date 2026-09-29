@@ -1,94 +1,111 @@
-const bcrypt = require("bcrypt");
-const User = require("../models/User.model");
-const Role = require("../models/Role.model");
+const bcrypt = require('bcrypt');
+const { randomUUID } = require('node:crypto');
+const User = require('../models/User.model');
+const mongoose = require('mongoose');
+const UserRole = require('../models/UserRole.model');
+const Role = require('../models/Role.model');
+const HttpError = require('../utils/http-error');
 
-const HIDDEN_FIELDS = "-password -refreshToken";
+const PASSWORD_ROUNDS = 12;
+const selectedUserFields = '+username +lastName';
+const userFilter = (id) => (mongoose.isValidObjectId(id) ? { $or: [{ id }, { _id: id }] } : { id });
 
 class UserService {
-  async ensureRole(roleId) {
-    const role = await Role.findOne({ _id: roleId, state: 1 });
-    if (!role) {
-      throw new Error("Role not found");
-    }
-  }
-
-  async ensureUnique({ username, email }, excludeId) {
-    const or = [];
-    if (username) or.push({ username });
-    if (email) or.push({ email: email.toLowerCase() });
-    if (or.length === 0) return;
-    const filter = excludeId ? { $or: or, _id: { $ne: excludeId } } : { $or: or };
-    const existingUser = await User.findOne(filter);
-    if (existingUser) {
-      throw new Error("Username or email already in use");
-    }
-  }
-
-  async findPublic(id) {
-    return User.findById(id).select(HIDDEN_FIELDS).populate("role", "id name");
-  }
-
-  async register({ username, email, password, firstName, lastName, role }) {
-    await this.ensureUnique({ username, email });
-    await this.ensureRole(role);
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({
-      username,
-      email,
-      password: hashedPassword,
-      firstName,
-      lastName,
-      role,
+  async register(data, { userId }) {
+    const existingUser = await User.findOne({
+      $or: [{ email: data.email }, { user: data.user }, { username: data.user }],
     });
-    return {
-      message: "User registered successfully",
-      data: { user: await this.findPublic(user._id) },
-    };
-  }
-
-  async update({ id, password, role, ...fields }) {
-    await this.ensureUnique(fields, id);
-    if (role) {
-      await this.ensureRole(role);
+    if (existingUser) {
+      throw new HttpError(409, 'An account with these details already exists', { code: 'ACCOUNT_EXISTS' });
     }
 
-    const changes = { ...fields };
-    if (role) changes.role = role;
-    if (password) changes.password = await bcrypt.hash(password, 10);
+    const user = await User.create({
+      id: randomUUID(),
+      user: data.user,
+      email: data.email,
+      password: await bcrypt.hash(data.password, PASSWORD_ROUNDS),
+      firstName: data.firstName,
+      paternalSurname: data.paternalSurname,
+      maternalSurname: data.maternalSurname,
+      userCreated: userId,
+    });
 
-    const user = await User.findByIdAndUpdate(id, changes, { runValidators: true });
+    return { message: 'User created successfully', data: { user: user.toPublicJSON() } };
+  }
+
+  async update({ id, ...changes }, { userId }) {
+    const user = await User.findOneAndUpdate(
+      userFilter(id),
+      { $set: { ...changes, userUpdate: userId } },
+      { new: true, runValidators: true },
+    ).select(selectedUserFields).exec();
+
     if (!user) {
-      throw new Error("User not found");
+      throw new HttpError(404, 'User not found', { code: 'USER_NOT_FOUND' });
     }
-    return {
-      message: "User updated successfully",
-      data: { user: await this.findPublic(id) },
-    };
+
+    return { message: 'User updated successfully', data: { user: user.toPublicJSON() } };
   }
 
-  async getAll() {
-    // Devuelve activos e inactivos para poder reactivarlos desde el admin
-    const allUsers = await User.find()
-      .select(HIDDEN_FIELDS)
-      .populate("role", "id name")
-      .sort({ createdAt: -1 });
+  async getAll({ page = 1, limit = 25 } = {}) {
+    const [users, total] = await Promise.all([
+      User.find()
+        .select(selectedUserFields)
+        .sort({ createdAt: -1, _id: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .exec(),
+      User.countDocuments(),
+    ]);
 
     return {
-      message: "Query successful",
-      data: { users: allUsers },
+      message: 'Query successful',
+      data: {
+        users: users.map((user) => user.toPublicJSON()),
+        pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+      },
     };
   }
 
   async getById(id) {
-    const user = await this.findPublic(id);
+    const user = await User.findOne(userFilter(id)).select(selectedUserFields).exec();
     if (!user) {
-      throw new Error("User not found");
+      throw new HttpError(404, 'User not found', { code: 'USER_NOT_FOUND' });
     }
-    return {
-      message: "Query successful",
-      data: { user },
-    };
+    return { message: 'Query successful', data: { user: user.toPublicJSON() } };
+  }
+
+  async assignRole({ id, roleId }, { userId }) {
+    const [user, role] = await Promise.all([
+      User.findOne(userFilter(id)).exec(),
+      Role.findOne({ _id: roleId, state: 1 }).exec(),
+    ]);
+
+    if (!user) {
+      throw new HttpError(404, 'User not found', { code: 'USER_NOT_FOUND' });
+    }
+    if (!role) {
+      throw new HttpError(404, 'Active role not found', { code: 'ROLE_NOT_FOUND' });
+    }
+
+    const assignment = await UserRole.findOne({ user: user._id, role: role._id }).exec();
+    if (assignment) {
+      if (assignment.state === 1) {
+        throw new HttpError(409, 'Role is already assigned to this user', { code: 'ROLE_ALREADY_ASSIGNED' });
+      }
+      assignment.state = 1;
+      assignment.userUpdate = userId;
+      await assignment.save();
+    } else {
+      await UserRole.create({
+        id: randomUUID(),
+        user: user._id,
+        role: role._id,
+        userCreated: userId,
+      });
+    }
+
+    return { message: 'Role assigned to user successfully' };
   }
 }
 

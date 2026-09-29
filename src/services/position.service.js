@@ -1,10 +1,11 @@
 const Position= require("../models/Position.model");
+const HttpError = require('../utils/http-error');
 
 class PositionService {
   async register({ id, name, description }, { userId }) {
     const existingPosition = await Position.findOne({ id });
     if (existingPosition) {
-      throw new Error("Position already exists");
+      throw new HttpError(409, "Position already exists", { code: 'RESOURCE_EXISTS' });
     }
     const position = await Position.create({
       id,
@@ -22,11 +23,12 @@ class PositionService {
 
   async update({ id, name, description }, { userId }) {
     const position = await Position.findOneAndUpdate(
-      { id },
-      { name, description, userUpdate: userId }
+      { id, state: 1 },
+      { $set: { name, description, userUpdate: userId } },
+      { new: true, runValidators: true },
     );
     if (!position) {
-      throw new Error("Position not found");
+      throw new HttpError(404, "Position not found", { code: 'RESOURCE_NOT_FOUND' });
     }
     return {
       message: "Position updated successfully",
@@ -36,33 +38,18 @@ class PositionService {
     };
   }
   async getAll() {
-    const allPositions = await Position.find({ state: 1 }).populate(
-      "userCreated",
-      "username email firstName lastName"
-    ).populate(
-      "userUpdate",
-      "username email firstName lastName"
-    );;
-    if (!allPositions) {
-      throw new Error("Error fetching positions");
-    }
+    const allPositions = await Position.find({ state: 1 }).sort({ name: 1 }).exec();
 
     return {
       message: "Query successful",
-      data: { positions: allPositions },
+      data: { positions: allPositions.map((position) => position.toPublicJSON()) },
     };
   }
 
   async getById(id) {
-    const position = await Position.findOne({ id, state: 1 }).populate(
-      "userCreated",
-      "username email firstName lastName"
-    ).populate(
-      "userUpdate",
-      "username email firstName lastName"
-    );
+    const position = await Position.findOne({ id, state: 1 }).exec();
     if (!position) {
-      throw new Error("Position not found");
+      throw new HttpError(404, "Position not found", { code: 'RESOURCE_NOT_FOUND' });
     }
     return {
       message: "Query successful",

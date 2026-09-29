@@ -1,64 +1,26 @@
-const Joi = require("joi");
+const Joi = require('joi');
+const validate = require('./validate');
+const { validateRegister: validateAuthRegister } = require('./auth.validator');
 
-const objectId = Joi.string().hex().length(24);
+const updateSchema = Joi.object({
+  id: Joi.string().trim().min(1).max(100).required(),
+  user: Joi.string().trim().min(3).max(30).optional(),
+  email: Joi.string().trim().lowercase().email().max(254).optional(),
+  firstName: Joi.string().trim().max(50).allow('').optional(),
+  paternalSurname: Joi.string().trim().max(50).allow('').optional(),
+  maternalSurname: Joi.string().trim().max(50).allow('').optional(),
+  cellphone: Joi.string().trim().max(30).allow('').optional(),
+}).min(2);
 
-const validateRegister = async (ctx, next) => {
-  const schema = Joi.object({
-    username: Joi.string().min(3).max(30).required(),
-    email: Joi.string().email().required(),
-    password: Joi.string().min(6).required(),
-    firstName: Joi.string().max(50).allow("").optional(),
-    lastName: Joi.string().max(50).allow("").optional(),
-    role: objectId.required(),
-  });
-
-  try {
-    await schema.validateAsync(ctx.request.body);
-  } catch (error) {
-    ctx.status = 400;
-    ctx.body = { success: false, error: error.message };
-    return;
-  }
-  await next();
-};
-
-const validateUpdate = async (ctx, next) => {
-  const schema = Joi.object({
-    id: objectId.required(),
-    username: Joi.string().min(3).max(30).optional(),
-    email: Joi.string().email().optional(),
-    password: Joi.string().min(6).optional(),
-    firstName: Joi.string().max(50).allow("").optional(),
-    lastName: Joi.string().max(50).allow("").optional(),
-    role: objectId.optional(),
-    isActive: Joi.boolean().optional(),
-  });
-  try {
-    await schema.validateAsync(ctx.request.body);
-  } catch (error) {
-    ctx.status = 400;
-    ctx.body = { success: false, error: error.message };
-    return;
-  }
-  await next();
-};
-
-const validateGetById = async (ctx, next) => {
-  const schema = Joi.object({
-    id: objectId.required(),
-  });
-  try {
-    await schema.validateAsync(ctx.request.params);
-  } catch (error) {
-    ctx.status = 400;
-    ctx.body = { success: false, error: error.message };
-    return;
-  }
-  await next();
-};
+const querySchema = Joi.object({
+  page: Joi.number().integer().min(1).default(1),
+  limit: Joi.number().integer().min(1).max(100).default(25),
+});
 
 module.exports = {
-  validateRegister,
-  validateUpdate,
-  validateGetById,
+  validateRegister: validateAuthRegister,
+  validateUpdate: validate(updateSchema),
+  validateGetById: validate(Joi.object({ id: Joi.string().trim().max(100).required() }), 'params'),
+  validateList: validate(querySchema, 'query'),
+  validateAssignRole: require('./auth.validator').validateAssignRole,
 };

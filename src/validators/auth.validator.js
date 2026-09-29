@@ -1,57 +1,54 @@
-const Joi = require("joi");
+const Joi = require('joi');
+const mongoose = require('mongoose');
+const validate = require('./validate');
 
-const validateRegister = async (ctx, next) => {
+const passwordInput = Joi.string()
+  .max(72)
+  .custom((value, helpers) => {
+    if (Buffer.byteLength(value, 'utf8') > 72) {
+      return helpers.error('password.bytes');
+    }
+    return value;
+  })
+  .messages({ 'password.bytes': 'Password must not exceed 72 bytes' });
 
-  const schema = Joi.object({
-    username: Joi.string().min(3).max(30).required(),
-    email: Joi.string().email().required(),
-    password: Joi.string().min(6).required(),
-    firstName: Joi.string().max(50).optional(),
-    lastName: Joi.string().max(50).optional(),
-  });
+const passwordSchema = passwordInput
+  .min(12)
+  .required();
 
-  try {
-    await schema.validateAsync(ctx.request.body);
-  } catch (error) {
-    ctx.status = 400;
-    ctx.body = { success: false, error: error.message };
-    return;
-  }
-  await next();
-};
+const registerSchema = Joi.object({
+  user: Joi.string().trim().min(3).max(30).required(),
+  email: Joi.string().trim().lowercase().email().max(254).required(),
+  password: passwordSchema,
+  firstName: Joi.string().trim().max(50).allow('').optional(),
+  paternalSurname: Joi.string().trim().max(50).allow('').optional(),
+  maternalSurname: Joi.string().trim().max(50).allow('').optional(),
+});
 
-const validateLogin = async (ctx, next) => {
-  const schema = Joi.object({
-    email: Joi.string().email().required(),
-    password: Joi.string().required(),
-  });
-  try {
-    await schema.validateAsync(ctx.request.body);
-  } catch (error) {
-    ctx.status = 400;
-    ctx.body = { success: false, error: error.message };
-    return;
-  }
-  await next();
-};
-const validateUpdateProfile = async (ctx, next) => {
-  const schema = Joi.object({
-    username: Joi.string().min(3).max(30).optional(),
-    firstName: Joi.string().max(50).optional(),
-    lastName: Joi.string().max(50).optional(),
-    avatar: Joi.string().uri().optional(),
-  });
-  try {
-    await schema.validateAsync(ctx.request.body);
-  } catch (error) {
-    ctx.status = 400;
-    ctx.body = { success: false, error: error.message };
-    return;
-  }
-  await next();
-};
+const loginSchema = Joi.object({
+  email: Joi.string().trim().lowercase().email().max(254).required(),
+  password: passwordInput.required(),
+});
+
+const refreshSchema = Joi.object({
+  refreshToken: Joi.string().max(4096).required(),
+});
+
+const userIdSchema = Joi.object({
+  id: Joi.string().trim().min(1).max(100).required(),
+});
+
+const assignRoleSchema = Joi.object({
+  id: Joi.string().trim().min(1).max(100).required(),
+  roleId: Joi.string().custom((value, helpers) => (
+    mongoose.isValidObjectId(value) ? value : helpers.error('any.invalid')
+  )).required(),
+});
+
 module.exports = {
-  validateRegister,
-  validateLogin,
-  validateUpdateProfile,
+  validateRegister: validate(registerSchema),
+  validateLogin: validate(loginSchema),
+  validateRefresh: validate(refreshSchema),
+  validateUserId: validate(userIdSchema, 'params'),
+  validateAssignRole: validate(assignRoleSchema),
 };

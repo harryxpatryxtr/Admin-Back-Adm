@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const PermissionRole = new mongoose.Schema(
+const UserRole = new mongoose.Schema(
   {
     id: {
         type: String,
@@ -9,10 +9,12 @@ const PermissionRole = new mongoose.Schema(
     role: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Role",
+        required: true,
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
+        required: true,
     },
     state: {
         type: Number,
@@ -34,15 +36,17 @@ const PermissionRole = new mongoose.Schema(
   }
 );
 
-PermissionRole.methods.toPublicJSON = function () {
+UserRole.index({ user: 1, role: 1 }, { unique: true });
+
+UserRole.methods.toPublicJSON = function () {
   return {
     idDb: this._id,
     id: this.id,
     role: this.role,
-    permission: this.permission,
+    user: this.user,
     state: this.state,
     createdAt: this.createdAt
   };
 };
 
-module.exports = mongoose.model("PermissionRole", PermissionRole);
+module.exports = mongoose.model("UserRole", UserRole);

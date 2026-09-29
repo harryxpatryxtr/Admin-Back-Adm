@@ -1,14 +1,9 @@
-const documentTypeService  = require('../services/documentType.service');
+const documentTypeService = require('../services/documentType.service');
 
 class DocumentTypeController {
   async register(ctx) {
-    try {
-      const result = await documentTypeService.register(ctx.request.body, ctx.state.user);
-      ctx.status = 201;
-      ctx.body = result;
-    } catch (error) {
-      ctx.throw(400, error.message);
-    }
+    ctx.status = 201;
+    ctx.body = await documentTypeService.register(ctx.request.body, ctx.state.user);
   }
 
   async update(ctx) {
@@ -38,7 +33,6 @@ class DocumentTypeController {
       ctx.throw(400, error.message);
     }
   }
-
 }
 
 module.exports = new DocumentTypeController();

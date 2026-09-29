@@ -1,81 +1,34 @@
-const roleService = require("../services/role.service");
+const roleService = require('../services/role.service');
 
 class RoleController {
   async register(ctx) {
-    try {
-      const result = await roleService.register(
-        ctx.request.body,
-        ctx.state.user
-      );
-      ctx.status = 201;
-      ctx.body = result;
-    } catch (error) {
-      ctx.throw(400, error.message);
-    }
+    ctx.status = 201;
+    ctx.body = await roleService.register(ctx.request.body, ctx.state.user);
   }
 
   async update(ctx) {
-    try {
-      const result = await roleService.update(ctx.request.body, ctx.state.user);
-      console.log("Update Result:", result);
-      ctx.body = result;
-    } catch (error) {
-      ctx.throw(400, error.message);
-    }
+    ctx.body = await roleService.update(ctx.request.body, ctx.state.user);
   }
 
   async getAll(ctx) {
-    try {
-      const result = await roleService.getAll(ctx.request.body);
-      ctx.body = result;
-    } catch (error) {
-      ctx.throw(400, error.message);
-    }
+    ctx.body = await roleService.getAll();
   }
 
   async getById(ctx) {
-    try {
-      const result = await roleService.getById(ctx.request.params.id);
-      ctx.body = result;
-    } catch (error) {
-      ctx.throw(400, error.message);
-    }
+    ctx.body = await roleService.getById(ctx.params.id);
   }
+
   async setPermission(ctx) {
-    try {
-     
-      const result = await roleService.setPermission(
-        ctx.request.body,
-        ctx.state.user
-      );  console.log("Controller - setPermission called with:", ctx.request.body, ctx.state.user);
-      ctx.body = result;
-    } catch (error) {
-       console.log("Controller - setPermission called with:", error);
-      ctx.throw(400, error.message);
-    }
+    ctx.body = await roleService.setPermission(ctx.request.body, ctx.state.user);
   }
+
   async deletePermission(ctx) {
-    try {
-      const result = await roleService.deletePermission(
-        ctx.request.params.id,
-        ctx.state.user
-      );
-      ctx.body = result;
-    } catch (error) {
-      ctx.throw(400, error.message);
-    }
+    ctx.body = await roleService.deletePermission(ctx.params.id, ctx.state.user);
   }
+
   async getPermissionsByRole(ctx) {
-    try {
-      const result = await roleService.getPermissionsByRole(
-        ctx.request.params.roleId
-      );
-      ctx.body = result;
-    } catch (error) {
-      ctx.throw(400, error.message);
-    }
+    ctx.body = await roleService.getPermissionsByRole(ctx.params.roleId);
   }
-  
 }
 
 module.exports = new RoleController();

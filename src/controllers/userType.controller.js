@@ -1,44 +1,22 @@
-const userTypeService  = require('../services/userType.service');
+const userTypeService = require('../services/userType.service');
 
 class UserTypeController {
   async register(ctx) {
-    try {
-      const result = await userTypeService.register(ctx.request.body, ctx.state.user);
-      ctx.status = 201;
-      ctx.body = result;
-    } catch (error) {
-      ctx.throw(400, error.message);
-    }
+    ctx.status = 201;
+    ctx.body = await userTypeService.register(ctx.request.body, ctx.state.user);
   }
 
   async update(ctx) {
-    try {
-      const result = await userTypeService.update(ctx.request.body,ctx.state.user );
-      console.log("Update Result:", result);
-      ctx.body = result;
-    } catch (error) {
-      ctx.throw(400, error.message);
-    }
+    ctx.body = await userTypeService.update(ctx.request.body, ctx.state.user);
   }
 
   async getAll(ctx) {
-    try {
-      const result = await userTypeService.getAll(ctx.request.body);
-      ctx.body = result;
-    } catch (error) {
-      ctx.throw(400, error.message);
-    }
+    ctx.body = await userTypeService.getAll();
   }
 
   async getById(ctx) {
-    try {
-      const result = await userTypeService.getById(ctx.request.params.id  );
-      ctx.body = result;
-    } catch (error) {
-      ctx.throw(400, error.message);
-    }
+    ctx.body = await userTypeService.getById(ctx.params.id);
   }
-
 }
 
 module.exports = new UserTypeController();

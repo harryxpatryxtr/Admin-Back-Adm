@@ -1,141 +1,110 @@
-const Role = require("../models/Role.model");
-const PermissionRole = require("../models/PermissionRole.model");
+const { randomUUID } = require('node:crypto');
+const Role = require('../models/Role.model');
+const Permission = require('../models/Permission.model');
+const PermissionRole = require('../models/PermissionRole.model');
+const HttpError = require('../utils/http-error');
 
 class RoleService {
   async register({ id, name, description }, { userId }) {
-    const existingRole = await Role.findOne({ id });
+    const existingRole = await Role.findOne({ id }).exec();
     if (existingRole) {
-      throw new Error("Permission already exists");
+      throw new HttpError(409, 'Role already exists', { code: 'RESOURCE_EXISTS' });
     }
-    const permission = await Role.create({
-      id,
-      name,
-      description,
-      userCreated: userId,
-    });
+
+    const role = await Role.create({ id, name, description, userCreated: userId });
     return {
-      message: "Role registered successfully",
-      data: {
-        role: { idDb: permission._id, id, name, description },
-      },
+      message: 'Role registered successfully',
+      data: { role: { idDb: role._id, id: role.id, name: role.name, description: role.description } },
     };
   }
 
   async update({ id, name, description }, { userId }) {
     const role = await Role.findOneAndUpdate(
-      { id },
-      { name, description, userUpdate: userId }
-    );
+      { id, state: 1 },
+      { $set: { name, description, userUpdate: userId } },
+      { new: true, runValidators: true },
+    ).exec();
     if (!role) {
-      throw new Error("Role not found");
+      throw new HttpError(404, 'Role not found', { code: 'RESOURCE_NOT_FOUND' });
     }
     return {
-      message: "Role updated successfully",
-      data: {
-        role: { idDb: role._id, id, name, description },
-      },
+      message: 'Role updated successfully',
+      data: { role: { idDb: role._id, id: role.id, name: role.name, description: role.description } },
     };
   }
-  async getAll() {
-    const allRoles = await Role.find({ state: 1 }).populate(
-      "userCreated",
-      "username email firstName lastName"
-    ).populate(
-      "userUpdate",
-      "username email firstName lastName"
-    );
-    if (!allRoles) {
-      throw new Error("Error fetching roles");
-    }
 
-    return {
-      message: "Query successful",
-      data: { roles: allRoles },
-    };
+  async getAll() {
+    const roles = await Role.find({ state: 1 }).sort({ name: 1 }).exec();
+    return { message: 'Query successful', data: { roles: roles.map((role) => role.toPublicJSON()) } };
   }
 
   async getById(id) {
-    const role = await Role.findOne({ id, state: 1 }).populate(
-      "userCreated",
-      "username email firstName lastName"
-    ).populate(
-      "userUpdate",
-      "username email firstName lastName"
-    );
+    const role = await Role.findOne({ id, state: 1 }).exec();
     if (!role) {
-      throw new Error("Permission not found");
+      throw new HttpError(404, 'Role not found', { code: 'RESOURCE_NOT_FOUND' });
     }
     return {
-      message: "Query successful",
-      data: {
-        permission: {
-          _id: role._id,
-          id: role.id,
-          name: role.name,
-          description: role.description,
-        },
-      },
+      message: 'Query successful',
+      data: { role: { _id: role._id, id: role.id, name: role.name, description: role.description } },
     };
   }
 
-  async setPermission({ id, roleId, permissionId }, { userId }) {
-    // Una asignación por par rol-permiso: si existe inactiva se reactiva
-    const permissionRole = await PermissionRole.findOne({
-      role: roleId,
-      permission: permissionId,
-    });
-    if (permissionRole) {
-      if (permissionRole.state === 0) {
-        await PermissionRole.findByIdAndUpdate(
-          permissionRole._id,
-          { state: 1, userUpdate: userId }
-        );
-        return {
-          message: "Permission reactivated successfully",
-        };
-      } else {
-        throw new Error("Permission already assigned to role");
-      }
+  async setPermission({ roleId, permissionId }, { userId }) {
+    const [role, permission] = await Promise.all([
+      Role.findOne({ _id: roleId, state: 1 }).exec(),
+      Permission.findOne({ _id: permissionId, state: 1 }).exec(),
+    ]);
+    if (!role) {
+      throw new HttpError(404, 'Active role not found', { code: 'ROLE_NOT_FOUND' });
     }
-    await PermissionRole.create({id,
-      role: roleId,
-      permission: permissionId,
-      userCreated: userId,
-    });
-    return {
-      message: "Permission assigned to role successfully",
-    };
+    if (!permission) {
+      throw new HttpError(404, 'Active permission not found', { code: 'PERMISSION_NOT_FOUND' });
+    }
+
+    const assignment = await PermissionRole.findOne({ role: role._id, permission: permission._id }).exec();
+    if (assignment?.state === 1) {
+      throw new HttpError(409, 'Permission is already assigned to this role', { code: 'PERMISSION_ALREADY_ASSIGNED' });
+    }
+    if (assignment) {
+      assignment.state = 1;
+      assignment.userUpdate = userId;
+      await assignment.save();
+    } else {
+      await PermissionRole.create({
+        id: randomUUID(),
+        role: role._id,
+        permission: permission._id,
+        userCreated: userId,
+      });
+    }
+
+    return { message: 'Permission assigned to role successfully' };
   }
 
-  async deletePermission(id  , { userId }) {
-    console.log("deletePermission called with:", id, userId);
-    const permissionRole = await PermissionRole.findOne({ id })
-    
-      console.log(permissionRole);
-  
-     if (!permissionRole ) {
-       throw new Error("Role not found");
-     }
-    await PermissionRole.findOneAndUpdate(
-      { id },
-      { state: 0, userUpdate: userId }
-    );
-    return {
-      message: "Permission removed from role successfully",
-    };  
+  async deletePermission(id, { userId }) {
+    const assignment = await PermissionRole.findOneAndUpdate(
+      { id, state: 1 },
+      { $set: { state: 0, userUpdate: userId } },
+      { new: true, runValidators: true },
+    ).exec();
+    if (!assignment) {
+      throw new HttpError(404, 'Permission assignment not found', { code: 'ASSIGNMENT_NOT_FOUND' });
+    }
+    return { message: 'Permission removed from role successfully' };
   }
 
   async getPermissionsByRole(roleId) {
-    const permissions = await PermissionRole.find({ role: roleId, state: 1 })
-      .populate("permission")
-      .populate("userCreated", "username email firstName lastName")
-      .populate("userUpdate", "username email firstName lastName");
-    if (!permissions) {
-      throw new Error("Error fetching permissions for the role");
+    const role = await Role.findOne({ _id: roleId, state: 1 }).select('_id').exec();
+    if (!role) {
+      throw new HttpError(404, 'Active role not found', { code: 'ROLE_NOT_FOUND' });
     }
+
+    const assignments = await PermissionRole.find({ role: role._id, state: 1 })
+      .populate({ path: 'permission', match: { state: 1 }, select: 'id name description' })
+      .exec();
     return {
-      message: "Query successful",
-      data: { permissions },
+      message: 'Query successful',
+      data: { permissions: assignments.filter(({ permission }) => permission).map((item) => item.toPublicJSON()) },
     };
   }
 }

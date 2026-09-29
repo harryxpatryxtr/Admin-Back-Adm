@@ -1,10 +1,11 @@
 const DocumentType = require("../models/DocumentType.model");
+const HttpError = require('../utils/http-error');
 
 class DocumentTypeService {
   async register({ id, name, description }, { userId }) {
     const existingDocumentType = await DocumentType.findOne({ id });
     if (existingDocumentType) {
-      throw new Error("DocumentType already exists");
+      throw new HttpError(409, "Document type already exists", { code: 'RESOURCE_EXISTS' });
     }
     const documentType = await DocumentType.create({
       id,
@@ -22,11 +23,12 @@ class DocumentTypeService {
 
   async update({ id, name, description }, { userId }) {
     const documentType = await DocumentType.findOneAndUpdate(
-      { id },
-      { name, description, userUpdate: userId }
+      { id, state: 1 },
+      { $set: { name, description, userUpdate: userId } },
+      { new: true, runValidators: true },
     );
     if (!documentType) {
-      throw new Error("DocumentType not found");
+      throw new HttpError(404, "Document type not found", { code: 'RESOURCE_NOT_FOUND' });
     }
     return {
       message: "DocumentType updated successfully",
@@ -36,33 +38,18 @@ class DocumentTypeService {
     };
   }
   async getAll() {
-    const allDocumentTypes = await DocumentType.find({ state: 1 }).populate(
-      "userCreated",
-      "username email firstName lastName"
-    ).populate(
-      "userUpdate",
-      "username email firstName lastName"
-    );
-    if (!allDocumentTypes) {
-      throw new Error("Error fetching document types");
-    }
+    const allDocumentTypes = await DocumentType.find({ state: 1 }).sort({ name: 1 }).exec();
 
     return {
       message: "Query successful",
-      data: { documentTypes: allDocumentTypes },
+      data: { documentTypes: allDocumentTypes.map((documentType) => documentType.toPublicJSON()) },
     };
   }
 
   async getById(id) {
-    const documentType = await DocumentType.findOne({ id, state: 1 }).populate(
-      "userCreated",
-      "username email firstName lastName"
-    ).populate(
-      "userUpdate",
-      "username email firstName lastName"
-    );
+    const documentType = await DocumentType.findOne({ id, state: 1 }).exec();
     if (!documentType) {
-      throw new Error("DocumentType not found");
+      throw new HttpError(404, "Document type not found", { code: 'RESOURCE_NOT_FOUND' });
     }
     return {
       message: "Query successful",

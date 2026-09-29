@@ -1,10 +1,11 @@
 const Permission= require("../models/Permission.model");
+const HttpError = require('../utils/http-error');
 
 class PermissionService {
   async register({ id, name, description }, { userId }) {
     const existingPermission = await Permission.findOne({ id });
     if (existingPermission) {
-      throw new Error("Permission already exists");
+      throw new HttpError(409, "Permission already exists", { code: 'RESOURCE_EXISTS' });
     }
     const permission = await Permission.create({
       id,
@@ -22,11 +23,12 @@ class PermissionService {
 
   async update({ id, name, description }, { userId }) {
     const permission = await Permission.findOneAndUpdate(
-      { id },
-      { name, description, userUpdate: userId }
+      { id, state: 1 },
+      { $set: { name, description, userUpdate: userId } },
+      { new: true, runValidators: true },
     );
     if (!permission) {
-      throw new Error("Permission not found");
+      throw new HttpError(404, "Permission not found", { code: 'RESOURCE_NOT_FOUND' });
     }
     return {
       message: "Permission updated successfully",
@@ -36,33 +38,18 @@ class PermissionService {
     };
   }
   async getAll() {
-    const allPermissions = await Permission.find({ state: 1 }).populate(
-      "userCreated",
-      "username email firstName lastName"
-    ).populate(
-      "userUpdate",
-      "username email firstName lastName"
-    );
-    if (!allPermissions) {
-      throw new Error("Error fetching permissions");
-    }
+    const allPermissions = await Permission.find({ state: 1 }).sort({ name: 1 }).exec();
 
     return {
       message: "Query successful",
-      data: { permissions: allPermissions },
+      data: { permissions: allPermissions.map((permission) => permission.toPublicJSON()) },
     };
   }
 
   async getById(id) {
-    const permission = await Permission.findOne({ id, state: 1 }).populate(
-      "userCreated",
-      "username email firstName lastName"
-    ).populate(
-      "userUpdate",
-      "username email firstName lastName"
-    );
+    const permission = await Permission.findOne({ id, state: 1 }).exec();
     if (!permission) {
-      throw new Error("Permission not found");
+      throw new HttpError(404, "Permission not found", { code: 'RESOURCE_NOT_FOUND' });
     }
     return {
       message: "Query successful",

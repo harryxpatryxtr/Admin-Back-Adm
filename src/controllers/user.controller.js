@@ -1,41 +1,25 @@
-const userService = require("../services/user.service");
+const userService = require('../services/user.service');
 
 class UserController {
   async register(ctx) {
-    try {
-      const result = await userService.register(ctx.request.body);
-      ctx.status = 201;
-      ctx.body = result;
-    } catch (error) {
-      ctx.throw(400, error.message);
-    }
+    ctx.status = 201;
+    ctx.body = await userService.register(ctx.request.body, ctx.state.user);
   }
 
   async update(ctx) {
-    try {
-      const result = await userService.update(ctx.request.body);
-      ctx.body = result;
-    } catch (error) {
-      ctx.throw(400, error.message);
-    }
+    ctx.body = await userService.update(ctx.request.body, ctx.state.user);
   }
 
   async getAll(ctx) {
-    try {
-      const result = await userService.getAll();
-      ctx.body = result;
-    } catch (error) {
-      ctx.throw(400, error.message);
-    }
+    ctx.body = await userService.getAll(ctx.state.validatedQuery);
   }
 
   async getById(ctx) {
-    try {
-      const result = await userService.getById(ctx.request.params.id);
-      ctx.body = result;
-    } catch (error) {
-      ctx.throw(404, error.message);
-    }
+    ctx.body = await userService.getById(ctx.params.id);
+  }
+
+  async assignRole(ctx) {
+    ctx.body = await userService.assignRole(ctx.request.body, ctx.state.user);
   }
 }
 

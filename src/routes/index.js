@@ -10,13 +10,13 @@ const userRoutes = require('./user.routes');
 
 const router = new Router();
 
-router.use('/api/auth' ,authRoutes.routes());
-router.use('/api/domain' ,domainRoutes.routes());
-router.use('/api/userType', userTypeRoutes.routes());
-router.use('/api/documentType', documentTypeRoutes.routes());
-router.use('/api/position', positionRoutes.routes());
-router.use('/api/permission', permissionRoutes.routes());
-router.use('/api/role', roleRoutes.routes());
-router.use('/api/user', userRoutes.routes());
+router.use('/api/auth', authRoutes.routes(), authRoutes.allowedMethods());
+router.use('/api/domain', domainRoutes.routes(), domainRoutes.allowedMethods());
+router.use('/api/userType', userTypeRoutes.routes(), userTypeRoutes.allowedMethods());
+router.use('/api/documentType', documentTypeRoutes.routes(), documentTypeRoutes.allowedMethods());
+router.use('/api/position', positionRoutes.routes(), positionRoutes.allowedMethods());
+router.use('/api/permission', permissionRoutes.routes(), permissionRoutes.allowedMethods());
+router.use('/api/role', roleRoutes.routes(), roleRoutes.allowedMethods());
+router.use('/api/user', userRoutes.routes(), userRoutes.allowedMethods());
 
 module.exports = router;
