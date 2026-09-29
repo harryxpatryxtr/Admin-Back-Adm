@@ -38,10 +38,10 @@ class PermissionService {
   async getAll() {
     const allPermissions = await Permission.find({ state: 1 }).populate(
       "userCreated",
-      "name email"
+      "username email firstName lastName"
     ).populate(
       "userUpdate",
-      "name email"
+      "username email firstName lastName"
     );
     if (!allPermissions) {
       throw new Error("Error fetching permissions");
@@ -56,10 +56,10 @@ class PermissionService {
   async getById(id) {
     const permission = await Permission.findOne({ id, state: 1 }).populate(
       "userCreated",
-      "name email"
+      "username email firstName lastName"
     ).populate(
       "userUpdate",
-      "name email"
+      "username email firstName lastName"
     );
     if (!permission) {
       throw new Error("Permission not found");

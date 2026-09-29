@@ -38,10 +38,10 @@ class PositionService {
   async getAll() {
     const allPositions = await Position.find({ state: 1 }).populate(
       "userCreated",
-      "name email"
+      "username email firstName lastName"
     ).populate(
       "userUpdate",
-      "name email"
+      "username email firstName lastName"
     );;
     if (!allPositions) {
       throw new Error("Error fetching positions");
@@ -56,10 +56,10 @@ class PositionService {
   async getById(id) {
     const position = await Position.findOne({ id, state: 1 }).populate(
       "userCreated",
-      "name email"
+      "username email firstName lastName"
     ).populate(
       "userUpdate",
-      "name email"
+      "username email firstName lastName"
     );
     if (!position) {
       throw new Error("Position not found");

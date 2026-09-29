@@ -38,10 +38,10 @@ class UserTypeService {
   async getAll() {
     const allUserTypes = await UserType.find({ state: 1 }).populate(
       "userCreated",
-      "name email"
+      "username email firstName lastName"
     ).populate(
       "userUpdate",
-      "name email"
+      "username email firstName lastName"
     );
     console.log("All User Types:", allUserTypes);
     if (!allUserTypes) {
@@ -57,10 +57,10 @@ class UserTypeService {
   async getById(id) {
     const userType = await UserType.findOne({ id, state: 1 }).populate(
       "userCreated",
-      "name email"
+      "username email firstName lastName"
     ).populate(
       "userUpdate",
-      "name email"
+      "username email firstName lastName"
     );
     if (!userType) {
       throw new Error("User Type not found");
