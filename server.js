@@ -26,7 +26,8 @@ const start = async () => {
 
 if (require.main === module) {
   start().catch((error) => {
-    console.error('Server startup failed:', error.name);
+    // El mensaje indica qué configuración falta; no incluye valores secretos
+    console.error('Server startup failed:', error.name, error.message);
     process.exitCode = 1;
   });
 }
